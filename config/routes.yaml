@@ -11,3 +11,21 @@ property.show:
   controller: App\Controller\PropertyController::show
   requirements:
     slug: '[a-z0-9-]+'
+
+admin.property.index:
+  path: /admin
+  controller: App\Controller\Admin\AdminPropertyController::index
+
+admin.property.new:
+  path: /admin/create
+  controller: App\Controller\Admin\AdminPropertyController::new
+
+admin.property.edit:
+  path: /admin/{id}
+  methods: ["GET", "POST"]
+  controller: App\Controller\Admin\AdminPropertyController::edit
+
+admin.property.delete:
+  path: /admin/delete/{id}
+  methods: ["DELETE", "POST"]
+  controller: App\Controller\Admin\AdminPropertyController::delete
