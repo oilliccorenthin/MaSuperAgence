@@ -2,6 +2,13 @@ home:
   path: /
   controller: App\Controller\HomeController::index
 
+login:
+  path: /login
+  controller: App\Controller\SecurityController::login
+
+logout:
+  path: /logout
+
 property.index:
   path: /biens
   controller: App\Controller\PropertyController::index
