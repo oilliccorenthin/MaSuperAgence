@@ -18,9 +18,7 @@ class HomeController extends AbstractController {
         $this->twig = $twig;
     }
 
-    /**
-     * @Route("/", name="home")
-     */
+
     public function index(PropertyRepository $repository) : Response
     {
         $properties = $repository->findLatest();

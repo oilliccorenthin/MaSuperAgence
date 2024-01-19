@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Repository\PropertyRepository;
 use DateTimeImmutable;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -66,9 +68,13 @@ class Property
     #[ORM\Column]
     private ?int $price = null;
 
+    #[ORM\ManyToMany(targetEntity: Option::class, inversedBy: 'properties')]
+    private Collection $options;
+
     public function __construct()
     {
         $this->created_at = new DateTimeImmutable();
+        $this->options = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -256,5 +262,32 @@ class Property
     public function getFormatedPrice(): string
     {
         return number_format($this->price,0,'',' ');
+    }
+
+    /**
+     * @return Collection<int, Option>
+     */
+    public function getOptions(): Collection
+    {
+        return $this->options;
+    }
+
+    public function addOption(Option $option): static
+    {
+        if (!$this->options->contains($option)) {
+            $this->options->add($option);
+            $option->addProperty($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOption(Option $option): static
+    {
+        if ($this->options->removeElement($option)) {
+            $option->removeProperty($this);
+        }
+
+        return $this;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class Filter
@@ -12,7 +13,12 @@ class Filter
     #[Assert\Range(min:10, max:400)]
     private ?int $MinSurface = null;
 
+    private ?ArrayCollection $options;
 
+    public function __construct()
+    {
+        $this->options = new ArrayCollection();
+    }
 
     public function getMaxPrice(): ?int
     {
@@ -36,5 +42,15 @@ class Filter
         $this->MinSurface = $MinSurface;
 
         return $this;
+    }
+
+    public function getOptions(): ArrayCollection
+    {
+        return $this->options;
+    }
+
+    public function setOptions(ArrayCollection $options): void
+    {
+        $this->options = $options;
     }
 }
