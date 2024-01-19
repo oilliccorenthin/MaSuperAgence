@@ -1,11 +1,15 @@
 <?php
 namespace App\Controller;
 
+use App\Entity\Filter;
 use App\Entity\Property;
 use App\Repository\PropertyRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use App\Form\FilterType;
 
 class PropertyController extends AbstractController
 {
@@ -20,10 +24,23 @@ class PropertyController extends AbstractController
     /**
      * @return Response
      */
-    public function index(): Response
+    public function index(PaginatorInterface $paginator, Request $request): Response
     {
+        //Créer une entité qui va représenter la recherche
+        //Créer le formulaire
+        //Gerer le traitement dans le controller
+        $filter = new Filter();
+        $form = $this->createForm(FilterType::class, $filter);
+        $form->handleRequest($request);
+        $properties = $paginator->paginate(
+            $this->repository->findAllVisibleQuery($filter),
+            $request->query->getInt('page', 1),
+            12
+        );
         return $this->render('property/index.html.twig', [
-        'current_menu' => 'properties'
+        'form' => $form->createview(),
+        'current_menu' => 'properties',
+        'properties' => $properties,
         ]);
     }
 

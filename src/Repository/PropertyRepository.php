@@ -2,9 +2,13 @@
 
 namespace App\Repository;
 
+use App\Entity\Filter;
 use App\Entity\Property;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Query;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\DBAL\Query\QueryException;
+use Doctrine\ORM\Query as ORMQuery;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -28,11 +32,18 @@ class PropertyRepository extends ServiceEntityRepository
             ->where('p.sold = false');
     }
 
-    public function findAllVisible()
+    public function findAllVisibleQuery(Filter $filter): ORMQuery
     {
-        return $this->findVisibileQuery()
-            ->getQuery()
-            ->getResult();
+        $query = $this->findVisibileQuery();
+        if ($filter->getMaxPrice()){
+            $query = $query->andWhere('p.price <= :maxprice')
+                ->setParameter('maxprice', $filter->getMaxPrice());
+        }
+        if ($filter->getMinSurface()){
+            $query = $query->andWhere('p.surface >= :minsurface')
+                ->setParameter('minsurface', $filter->getMinSurface());
+        }
+        return $query->getQuery();
     }
 
     public function findLatest(): array
