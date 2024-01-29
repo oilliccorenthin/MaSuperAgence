@@ -9,9 +9,13 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 #[ORM\Entity(repositoryClass: PropertyRepository::class)]
+#[Vich\Uploadable()]
 #[UniqueEntity("title")]
 class Property
 {
@@ -25,6 +29,13 @@ class Property
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
+
+    #[ORM\Column(type: Types::STRING, length: 255)]
+    private ?string $filename;
+
+    #[Vich\UploadableField(mapping:"property_image", fileNameProperty:"filename")]
+    #[Assert\Image(mimeTypes:["image/jpeg"])]
+    private ?File $image = null;
 
     #[ORM\Column(type: Types::STRING, length:255)]
     #[Assert\Length(min:5, max:255)]
@@ -70,6 +81,9 @@ class Property
 
     #[ORM\ManyToMany(targetEntity: Option::class, inversedBy: 'properties')]
     private Collection $options;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $updated_at = null;
 
     public function __construct()
     {
@@ -264,9 +278,7 @@ class Property
         return number_format($this->price,0,'',' ');
     }
 
-    /**
-     * @return Collection<int, Option>
-     */
+
     public function getOptions(): Collection
     {
         return $this->options;
@@ -287,6 +299,44 @@ class Property
         if ($this->options->removeElement($option)) {
             $option->removeProperty($this);
         }
+
+        return $this;
+    }
+
+    public function getFileName(): string
+    {
+        return $this->filename;
+    }
+
+    public function setFilename(string $filename) : static
+    {
+        $this->filename = $filename;
+
+        return $this;
+    }
+
+    public function getImage() : ?File
+    {
+        return $this->image;
+    }
+
+    public function setImage(?File $image) : static
+    {
+        $this->image = $image;
+        if ($this->image instanceof UploadedFile){
+            $this->updated_at = new \DateTimeImmutable('now');
+        }
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updated_at;
+    }
+
+    public function setUpdatedAt(\DateTimeImmutable $updated_at): static
+    {
+        $this->updated_at = $updated_at;
 
         return $this;
     }

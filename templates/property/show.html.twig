@@ -50,6 +50,11 @@
             </div>
             <div class="cold-md-4">
             <h2>Spécificitées</h2>
+            <ul class="list-group">
+                {% for option in property.options %}
+                    <li class="list-group-item">{{ option.name }}</li>
+                {% endfor %}
+            </ul>
             </div>
         </div>
     </div>

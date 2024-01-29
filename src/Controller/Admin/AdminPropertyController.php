@@ -8,9 +8,12 @@ use App\Entity\Property;
 use App\Repository\PropertyRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
+use Liip\ImagineBundle\Imagine\Cache\CacheManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Vich\UploaderBundle\Templating\Helper\UploaderHelper;
 
 class AdminPropertyController extends AbstractController
 {
@@ -38,7 +41,7 @@ class AdminPropertyController extends AbstractController
     }
 
 
-    public function edit($id, Request $request)
+    public function edit($id, Request $request, CacheManager $cacheManager, UploaderHelper $helper)
     {
         $property = $this->repository->find($id);
 
@@ -50,6 +53,9 @@ class AdminPropertyController extends AbstractController
         $form = $this->createForm(PropertyType::class, $property);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+            if ($property->getImage() instanceof UploadedFile) {
+                $cacheManager->remove($helper->asset($property, 'image'));
+            }
             $this->doctrine->getManager()->flush();
             $this->addFlash('success', 'Modifié avec succès');
             return $this->redirectToRoute('admin.property.index');
